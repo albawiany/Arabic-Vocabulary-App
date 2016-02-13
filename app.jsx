@@ -53,8 +53,17 @@ var VocabularyApp = React.createClass({
 		this.loadWordsFromServer();
 	},
 
-  handleUserInput: function() {
-    var input = event.target.value;
+  handleSubmit: function(e){
+		// Prevent the browser's default action of submitting the form
+		e.preventDefault();
+		// We use the "ref" attribute to assign a name to a child component
+		// and this.refs to reference the component
+		// We can call React.findDOMNode(component) on a component to get
+		// the native browser DOM element
+		var input = React.findDOMNode(this.refs.userInput).value.trim();
+
+    // React.findDOMNode(this.refs.userInput).value = '';
+
     var correct = input===this.state.wordNode.es_word;
     if(correct){
       console.log("CORRECT!!!!");
@@ -62,7 +71,7 @@ var VocabularyApp = React.createClass({
         correct: true
       });
     }
-  },
+	},
 
   render: function(){
     var wordsNodes = this.state.data.map(function(wordNode){
@@ -72,21 +81,22 @@ var VocabularyApp = React.createClass({
 				</div>
 			);
 		});
+    var checkmark = '';
+    if(this.state.correct)
+      checkmark = 'highlight'
     return(
       <div className="app_box">
-        <span className="ar_word">{this.state.wordNode.ar_word}</span>:
-        <input
-          type="text"
-          placeholder="Translation..."
-          value={this.state.userInput}
-          ref="userInput"
-          onChange={this.handleUserInput}
-          />
-        <div>
-          {wordsNodes}
-        </div>
+        <form onSubmit={this.handleSubmit}>
+          <span className="ar_word">{this.state.wordNode.ar_word}</span>:
+          <input type="text" placeholder="Translation..." ref="userInput"/>
+          <input type="submit" value="Check" />
+          <span className={checkmark}></span>
+        </form>
       </div>
     );
+    // <div>
+    //   {wordsNodes}
+    // </div>
   }
 });
 

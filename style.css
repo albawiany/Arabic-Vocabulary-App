@@ -6,3 +6,7 @@
 .app_box{
   font-size: 30px;
 }
+
+.highlight::after {
+    content: url(img/checkmark.gif);
+}
