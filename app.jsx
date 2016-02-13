@@ -1,3 +1,20 @@
+/////////////////
+/// Functions ///
+/////////////////
+
+// This function pops a random element
+// from the given array
+var getRandom = function(arr){
+  var randIndex = Math.floor(Math.random()*arr.length);
+  console.log("NUM: " + randIndex);
+  console.log("arr[randIndex]: " + arr[randIndex]);
+  return arr[randIndex];
+}
+
+
+///////////
+/// APP ///
+//////////
 var VocabularyApp = React.createClass({
   loadWordsFromServer: function() {
     $.ajax({
@@ -29,9 +46,18 @@ var VocabularyApp = React.createClass({
 				</div>
 			);
 		});
+    // for(var i=0; i<this.state.data.length; i++){
+    //     console.log(this.state.data[i][0] + ": " + this.state.data[i][1]);
+    // }
+    var wordArr = getRandom(this.state.data);
+    if(wordArr!==undefined){
+      var arWord = wordArr.ar_word;
+      var esWord = wordArr.es_word;
+      console.log("wordArr[0]: " + wordArr.ar_word);
+    }
     return(
       <div className="app_box">
-        <span className="ar_word">نَحِيفْ</span>:
+        <span className="ar_word">{arWord}</span>:
         <input type="text" placeholder="Translation..." ref="translation" />
         <div>
           {wordsNodes}
