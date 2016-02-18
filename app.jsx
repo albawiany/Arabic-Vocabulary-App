@@ -26,7 +26,8 @@ var VocabularyApp = React.createClass({
 			success: function(data) {
 				this.setState({
           data: data,
-          wordNode: getRandom(data)
+          words: data[0].words,
+          wordNode: getRandom(data[0].words)
         });
 			}.bind(this),
 			error: function(xhr, status, err) {
@@ -43,6 +44,7 @@ var VocabularyApp = React.createClass({
       //           be translated
 	    return {
         data: [],
+        words: ['a', 'b'],
         wordNode: {ar_word: '', es_word: ''},
         correct: false
       };
@@ -74,8 +76,8 @@ var VocabularyApp = React.createClass({
 	},
 
   render: function(){
-    var wordsNodes = this.state.data.map(function(wordNode){
-			return (
+    var wordsNodes = this.state.words.map(function(wordNode){
+      return (
 				<div>
 					{wordNode.ar_word}: {wordNode.es_word}
 				</div>
@@ -92,11 +94,12 @@ var VocabularyApp = React.createClass({
           <input type="submit" value="Check" />
           <span className={checkmark}></span>
         </form>
+
+        <div>
+          {wordsNodes}
+        </div>
       </div>
     );
-    // <div>
-    //   {wordsNodes}
-    // </div>
   }
 });
 
@@ -105,7 +108,7 @@ var VocabularyBox = React.createClass({
     return(
       <div>
         <h1>Translate the next word:</h1>
-        <VocabularyApp url="vocabulary.json"/>
+        <VocabularyApp url="vocabulary/el_cuerpo.json"/>
       </div>
     );
   }
