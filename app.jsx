@@ -15,25 +15,72 @@ var getRandom = function(arr){
 ///////////
 /// APP ///
 ///////////
+
+var VocabularyMenu = React.createClass({
+  loadWordsFromServer: function() {
+    var data = getJSON(url);
+    if(data!==null){
+      this.setState({
+        data: data,
+        words: data[0].words,
+        wordNode: getRandom(data[0].words)
+      });
+    }
+  },
+
+  // Get the json file
+	componentDidMount: function() {
+		this.loadWordsFromServer();
+	},
+
+  render: function(){
+    return(
+      <div>
+        <h1>Select a subject:</h1>
+      </div>
+    );
+  }
+});
+
 var VocabularyApp = React.createClass({
 
-
-  loadWordsFromServer: function() {
+  loadData: function(url) {
+    console.log("url: " + url);
     $.ajax({
-			url: this.props.url,
-			dataType: 'json',
-			cache: false,
-			success: function(data) {
-				this.setState({
+      url: url,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({
           data: data,
           words: data[0].words,
           wordNode: getRandom(data[0].words)
         });
-			}.bind(this),
-			error: function(xhr, status, err) {
-				console.error(this.props.url, status, err.toString());
-			}.bind(this)
-		});
+        console.log("******************");
+        console.log(data);
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(url, status, err.toString());
+        return null;
+      }.bind(this)
+    });
+  },
+
+
+  loadWordsFromServer: function() {
+    var data = this.loadData(this.props.url, this.setState);
+    console.log("DATA:");
+    console.log(data);
+    if(data!==null && data!=undefined){
+      console.log("ENTRA");
+      console.log(data);
+      console.log("length:" + data[0].length);
+      this.setState({
+        data: data,
+        words: data[0].words,
+        wordNode: getRandom(data[0].words)
+      });
+    }
 	},
 
   // // "props" are immutable, to implement interactions we add
@@ -44,9 +91,11 @@ var VocabularyApp = React.createClass({
       //           be translated
 	    return {
         data: [],
-        words: ['a', 'b'],
+        words: [],
         wordNode: {ar_word: '', es_word: ''},
-        correct: false
+        correct: false,
+        vocabularyStyle: "hideWords",
+        showWords: false
       };
 	},
 
@@ -68,24 +117,49 @@ var VocabularyApp = React.createClass({
 
     var correct = input===this.state.wordNode.es_word;
     if(correct){
-      console.log("CORRECT!!!!");
       this.setState({
         correct: true
       });
     }
 	},
 
+  handleClick: function(e){
+    // Prevent the browser's default action of submitting the form
+    e.preventDefault();
+    
+    if(!this.state.showWords)
+      this.setState({
+        vocabularyStyle: "ar-word",
+        showWords: true
+      });
+    else
+      this.setState({
+        vocabularyStyle: "hideWords",
+        showWords: false
+      });
+  },
+
   render: function(){
     var wordsNodes = this.state.words.map(function(wordNode){
+      console.log(wordNode);
+      // In some cases, React requires that each returned element
+      // has its own key
       return (
-				<div>
+				<div className="word-sol" key={wordNode.es_word}>
 					{wordNode.ar_word}: {wordNode.es_word}
 				</div>
 			);
 		});
+
     var checkmark = '';
     if(this.state.correct)
       checkmark = 'highlight'
+
+    if(this.state.showWords)
+      var vocText = "Hide Vocabulary"
+    else
+      var vocText = "Show Vocabulary"
+
     return(
       <div className="app_box">
         <form onSubmit={this.handleSubmit}>
@@ -95,8 +169,12 @@ var VocabularyApp = React.createClass({
           <span className={checkmark}></span>
         </form>
 
+
         <div>
-          {wordsNodes}
+          <p><a href="" onClick={this.handleClick}>{vocText}</a></p>
+          <div className={this.state.vocabularyStyle}>
+            {wordsNodes}
+          </div>
         </div>
       </div>
     );
@@ -104,6 +182,12 @@ var VocabularyApp = React.createClass({
 });
 
 var VocabularyBox = React.createClass({
+  getInitialState: function() {
+    return {
+      hideWords: true
+    };
+  },
+
   render: function(){
     return(
       <div>
@@ -113,6 +197,9 @@ var VocabularyBox = React.createClass({
     );
   }
 });
+
+// <VocabularyMenu />
+//
 
 // This call render all components that
 // we have defined before

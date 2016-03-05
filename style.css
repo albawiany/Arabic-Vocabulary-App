@@ -1,6 +1,7 @@
 @import url(http://fonts.googleapis.com/earlyaccess/amiri.css);
-.ar_word{
+.ar-word{
   font-family: 'Droid Arabic Naskh', serif;
+  font-size: 25px;
 }
 
 .app_box{
@@ -9,4 +10,8 @@
 
 .highlight::after {
     content: url(img/checkmark.gif);
+}
+
+.hideWords {
+	display: none;
 }
