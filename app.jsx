@@ -6,11 +6,8 @@
 // from the given array
 var getRandom = function(arr){
   var randIndex = Math.floor(Math.random()*arr.length);
-  console.log("NUM: " + randIndex);
-  console.log("arr[randIndex]: " + arr[randIndex]);
   return arr[randIndex];
 }
-
 
 ///////////
 /// APP ///
@@ -42,47 +39,36 @@ var VocabularyMenu = React.createClass({
   }
 });
 
-var VocabularyApp = React.createClass({
+var VocabularHeaderApp = React.createClass({
+  handleClick: function(e){
+    e.preventDefault();
 
-  loadData: function(url) {
-    console.log("url: " + url);
-    $.ajax({
-      url: url,
-      dataType: 'json',
-      cache: false,
-      success: function(data) {
-        this.setState({
-          data: data,
-          words: data[0].words,
-          wordNode: getRandom(data[0].words)
-        });
-        console.log("******************");
-        console.log(data);
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(url, status, err.toString());
-        return null;
-      }.bind(this)
-    });
+    var subject_file = e.target.id;
+
+    this.props.onUserChangeSubject(subject_file);
   },
 
+  render: function(){
+    return(
+      <div>
+        <h1>Choose a vocabulary subject</h1>
+        <div>
+          <a href=""
+              className="subject"
+              onClick={this.handleClick}
+              id="el_cuerpo">El Cuerpo</a>
 
-  loadWordsFromServer: function() {
-    var data = this.loadData(this.props.url, this.setState);
-    console.log("DATA:");
-    console.log(data);
-    if(data!==null && data!=undefined){
-      console.log("ENTRA");
-      console.log(data);
-      console.log("length:" + data[0].length);
-      this.setState({
-        data: data,
-        words: data[0].words,
-        wordNode: getRandom(data[0].words)
-      });
-    }
-	},
+          <a href=""
+              className="subject"
+              onClick={this.handleClick}
+              id="vocabulary">Subject</a>
+        </div>
+      </div>
+    );
+  }
+});
 
+var VocabularyApp = React.createClass({
   // // "props" are immutable, to implement interactions we add
 	// // "state".
 	getInitialState: function() {
@@ -90,43 +76,18 @@ var VocabularyApp = React.createClass({
       // wordNode: is the current word that we are specting to
       //           be translated
 	    return {
-        data: [],
-        words: [],
-        wordNode: {ar_word: '', es_word: ''},
-        correct: false,
+        wordNode: getRandom(this.props.words),
         vocabularyStyle: "hideWords",
-        showWords: false
+        showWords: false,
+        inputTextValue: '',
+        inputTextStyle: "input-text-wrong"
       };
-	},
-
-	// Get the json file
-	componentDidMount: function() {
-		this.loadWordsFromServer();
-	},
-
-  handleSubmit: function(e){
-		// Prevent the browser's default action of submitting the form
-		e.preventDefault();
-		// We use the "ref" attribute to assign a name to a child component
-		// and this.refs to reference the component
-		// We can call React.findDOMNode(component) on a component to get
-		// the native browser DOM element
-		var input = React.findDOMNode(this.refs.userInput).value.trim();
-
-    // React.findDOMNode(this.refs.userInput).value = '';
-
-    var correct = input===this.state.wordNode.es_word;
-    if(correct){
-      this.setState({
-        correct: true
-      });
-    }
 	},
 
   handleClick: function(e){
     // Prevent the browser's default action of submitting the form
     e.preventDefault();
-    
+
     if(!this.state.showWords)
       this.setState({
         vocabularyStyle: "ar-word",
@@ -139,36 +100,89 @@ var VocabularyApp = React.createClass({
       });
   },
 
+  handleChange: function(){
+    var input = React.findDOMNode(this.refs.userInput).value;
+    var correct = input.trim()===this.state.wordNode.es_word;
+    if(correct){
+      this.setState({
+        inputTextValue: input,
+        inputTextStyle: "input-text-right"
+      });
+    }else{
+      this.setState({
+        inputTextValue: input,
+        inputTextStyle: "input-text-wrong"
+      });
+    }
+  },
+
+  handleAnotherWord: function(e){
+    e.preventDefault();
+
+    var nextWord = this.state.wordNode;
+
+    while(nextWord===this.state.wordNode){
+      nextWord = getRandom(this.props.words)
+    }
+
+    this.setState({
+      wordNode: nextWord,
+      inputTextValue: ""
+    });
+  },
+
+  cleanInput: function(){
+    this.setState({
+      inputTextValue: "",
+      inputTextStyle: "input-text-wrong"
+    });
+  },
+
+  componentWillReceiveProps: function(nextProps){
+    this.setState({
+      wordNode: getRandom(nextProps.words),
+      vocabularyStyle: "hideWords",
+      showWords: false,
+      inputTextValue: '',
+      inputTextStyle: "input-text-wrong"
+    });
+  },
+
   render: function(){
-    var wordsNodes = this.state.words.map(function(wordNode){
-      console.log(wordNode);
-      // In some cases, React requires that each returned element
-      // has its own key
-      return (
-				<div className="word-sol" key={wordNode.es_word}>
-					{wordNode.ar_word}: {wordNode.es_word}
-				</div>
-			);
-		});
+    console.log("RENDER: VocabularyApp");
 
-    var checkmark = '';
-    if(this.state.correct)
-      checkmark = 'highlight'
+    if(this.props.words!==null)
+      var wordsNodes = this.props.words.map(function(wordNode){
+        // In some cases, React requires that each returned element
+        // has its own key
+        return (
+  				<div className="word-sol" key={wordNode.es_word}>
+  					{wordNode.ar_word}: {wordNode.es_word}
+  				</div>
+  			);
+  		});
 
+    // This manage the show/hide vocabulay button
     if(this.state.showWords)
-      var vocText = "Hide Vocabulary"
+      var vocText = "Hide Vocabulary";
     else
-      var vocText = "Show Vocabulary"
+      var vocText = "Show Vocabulary";
 
     return(
-      <div className="app_box">
+      <div>
         <form onSubmit={this.handleSubmit}>
-          <span className="ar_word">{this.state.wordNode.ar_word}</span>:
-          <input type="text" placeholder="Translation..." ref="userInput"/>
-          <input type="submit" value="Check" />
-          <span className={checkmark}></span>
+          <span className="ar-word">{this.state.wordNode.ar_word}</span>:
+          <input type="text"
+                  placeholder="Translation..."
+                  ref="userInput"
+                  value={this.state.inputTextValue}
+                  className={this.state.inputTextStyle}
+                  onChange={this.handleChange}/>
         </form>
 
+        <div>
+          <p><a href="" onClick={this.handleAnotherWord}>Give me another word...</a></p>
+        </div>
 
         <div>
           <p><a href="" onClick={this.handleClick}>{vocText}</a></p>
@@ -184,22 +198,76 @@ var VocabularyApp = React.createClass({
 var VocabularyBox = React.createClass({
   getInitialState: function() {
     return {
-      hideWords: true
+      subject: null,
+      subject_file: null,
+      data: null,
+      words: null,
+      clean: false
     };
   },
 
+  loadData: function(url, subject) {
+    $.ajax({
+      url: url,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        console.log("data:");
+        console.log(data);
+        this.setState({
+          subject: subject,
+          subject_file: url,
+          data: data,
+          words: data[0].words,
+        });
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(url, status, err.toString());
+        return null;
+      }.bind(this)
+    });
+  },
+
+  loadWordsFromServer: function(subject) {
+    if(this.props.url!==null){
+      var file_path = "vocabulary/" + subject + ".json"
+      console.log(file_path);
+      this.loadData(file_path, subject);
+    }
+	},
+
+  handleChangeSubject: function(subject){
+    console.log("subject: " + subject);
+    this.loadWordsFromServer(subject);
+    if(this.refs['VocabularyApp']!==undefined)
+      this.refs['VocabularyApp'].cleanInput();
+  },
+
   render: function(){
+    console.log(this.state.subject);
+    if(this.state.subject!==null){
+      var tile = this.state.subject;
+      var vocabularyApp = <div>
+                            <h3>{tile}</h3>
+                            <p>Translate the next word:</p>
+                            <VocabularyApp url={this.state.subject_file}
+                                            words={this.state.words}
+                                            ref="VocabularyApp"/>
+
+                          </div>;
+    }else{
+      var title = "";
+      var vocabularyApp = "";
+    }
+
     return(
       <div>
-        <h1>Translate the next word:</h1>
-        <VocabularyApp url="vocabulary/el_cuerpo.json"/>
+        <VocabularHeaderApp onUserChangeSubject={this.handleChangeSubject} />
+        {vocabularyApp}
       </div>
     );
   }
 });
-
-// <VocabularyMenu />
-//
 
 // This call render all components that
 // we have defined before
