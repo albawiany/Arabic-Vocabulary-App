@@ -4,14 +4,22 @@
   font-size: 25px;
 }
 
-.app_box{
-  font-size: 30px;
-}
-
 .highlight::after {
     content: url(img/checkmark.gif);
 }
 
 .hideWords {
 	display: none;
+}
+
+.subject{
+  margin-left: 10px;
+}
+
+.input-text-wrong{
+  color: red;
+}
+
+.input-text-right{
+  color: green;
 }
