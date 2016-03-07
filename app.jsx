@@ -61,7 +61,11 @@ var VocabularHeaderApp = React.createClass({
           <a href=""
               className="subject"
               onClick={this.handleClick}
-              id="vocabulary">Subject</a>
+              id="vocabulary">Mixed Vocabulary</a>
+          <a href=""
+              className="subject"
+              onClick={this.handleClick}
+              id="la_familia">La familia</a>
         </div>
       </div>
     );
@@ -156,7 +160,7 @@ var VocabularyApp = React.createClass({
         // In some cases, React requires that each returned element
         // has its own key
         return (
-  				<div className="word-sol" key={wordNode.es_word}>
+  				<div className="word-sol" key={wordNode.ar_word}>
   					{wordNode.ar_word}: {wordNode.es_word}
   				</div>
   			);
@@ -170,7 +174,7 @@ var VocabularyApp = React.createClass({
 
     return(
       <div>
-        <form onSubmit={this.handleSubmit}>
+        <form onSubmit={this.handleAnotherWord}>
           <span className="ar-word">{this.state.wordNode.ar_word}</span>:
           <input type="text"
                   placeholder="Translation..."
